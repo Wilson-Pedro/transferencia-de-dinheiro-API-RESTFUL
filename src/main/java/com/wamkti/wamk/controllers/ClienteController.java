@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,5 +48,17 @@ public class ClienteController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
 		}
 		return ResponseEntity.ok(clienteO.get());
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<Object> atualizarCLiente(@PathVariable Long id, 
+			@RequestBody @Valid ClienteRecodDTO clienteRecodDTO){
+		Optional<Cliente> clienteO = clienteService.findById(id);
+		if(clienteO.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
+		}
+		var cliente = clienteO.get();
+		BeanUtils.copyProperties(clienteRecodDTO, cliente);
+		return ResponseEntity.status(HttpStatus.OK).body(clienteService.save(cliente));
 	}
 }
