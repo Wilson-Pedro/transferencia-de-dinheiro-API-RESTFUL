@@ -1,5 +1,8 @@
 package com.wamkti.wamk.controllers;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -40,8 +43,14 @@ public class ClienteController {
 	
 	@GetMapping
 	public ResponseEntity<List<Cliente>> listarClientes(){
-		List<Cliente> list = clienteService.findAll();
-		return ResponseEntity.ok(list);
+		List<Cliente> clientes = clienteService.findAll();
+		if(!clientes.isEmpty()) {
+			for(Cliente cliente : clientes) {
+				Long id = cliente.getId();
+				cliente.add(linkTo(methodOn(ClienteController.class).buscarCliente(id)).withSelfRel());
+			}
+		}
+		return ResponseEntity.ok(clientes);
 	}
 	
 	@GetMapping("/{id}")
@@ -50,6 +59,7 @@ public class ClienteController {
 		if(clienteO.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
 		}
+		clienteO.get().add(linkTo(methodOn(ClienteController.class).listarClientes()).withSelfRel());
 		return ResponseEntity.ok(clienteO.get());
 	}
 	
