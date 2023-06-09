@@ -1,5 +1,6 @@
 package com.wamkti.wamk.controllers;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.entities.dtos.ClienteRecodDTO;
 import com.wamkti.wamk.services.ClienteService;
+import com.wamkti.wamk.transferencia.Transferencia;
 
 import jakarta.validation.Valid;
 
@@ -71,5 +73,23 @@ public class ClienteController {
 		}
 		clienteService.delete(clienteO.get());
 		return ResponseEntity.status(HttpStatus.OK).body("Cliente Deletado!");
+	}
+	
+	@PutMapping("/{clienteTransfereId}/transferencia/{clienteRecebeId}")
+	public ResponseEntity<Object> transferirValor(
+			@PathVariable Long clienteTransfereId,
+			@PathVariable Long clienteRecebeId,
+			@Valid @RequestBody Transferencia transferencia){
+		Optional<Cliente> clienteTransfereO = clienteService.findById(clienteTransfereId);
+		Optional<Cliente> clienteRecebeO = clienteService.findById(clienteRecebeId);
+		BigDecimal valor_cliente = clienteTransfereO.get().getValor();
+		BigDecimal valor_transferido = transferencia.getValor();
+		BigDecimal valor_atual = valor_cliente.subtract(valor_transferido);
+		var cliente = new Cliente();
+		BeanUtils.copyProperties(clienteTransfereO.get(), cliente);
+		cliente.setValor(valor_atual);
+		clienteService.Transferir(clienteRecebeO.get(), valor_transferido);
+		return ResponseEntity.ok(clienteService.save(cliente));
+		
 	}
 }

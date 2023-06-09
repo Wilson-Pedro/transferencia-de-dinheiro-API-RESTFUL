@@ -1,5 +1,6 @@
 package com.wamkti.wamk.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +30,12 @@ public class ClienteService {
 
 	public void delete(Cliente cliente) {
 		clienteRepository.delete(cliente);
+		
+	}
+
+	public void Transferir(Cliente cliente, BigDecimal valor_transferido) {
+		cliente.setValor(cliente.getValor().add(valor_transferido));
+		clienteRepository.save(cliente);
 		
 	}
 }
