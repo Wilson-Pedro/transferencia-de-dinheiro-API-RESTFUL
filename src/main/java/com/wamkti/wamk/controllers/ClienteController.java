@@ -7,6 +7,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,5 +61,15 @@ public class ClienteController {
 		var cliente = clienteO.get();
 		BeanUtils.copyProperties(clienteRecodDTO, cliente);
 		return ResponseEntity.status(HttpStatus.OK).body(clienteService.save(cliente));
+	}
+	
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Object> deletarCliente(@PathVariable Long id){
+		Optional<Cliente> clienteO = clienteService.findById(id);
+		if(clienteO.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
+		}
+		clienteService.delete(clienteO.get());
+		return ResponseEntity.status(HttpStatus.OK).body("Cliente Deletado!");
 	}
 }

@@ -26,4 +26,9 @@ public class ClienteService {
 	public Optional<Cliente> findById(Long id) {
 		return clienteRepository.findById(id);
 	}
+
+	public void delete(Cliente cliente) {
+		clienteRepository.delete(cliente);
+		
+	}
 }
