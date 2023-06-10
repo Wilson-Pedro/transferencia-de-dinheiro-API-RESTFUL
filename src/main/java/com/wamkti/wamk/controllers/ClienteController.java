@@ -90,6 +90,12 @@ public class ClienteController {
 			@PathVariable Long clienteTransfereId,
 			@PathVariable Long clienteRecebeId,
 			@Valid @RequestBody Transferencia transferencia){
+		Long cT = clienteTransfereId;
+		Long cR = clienteRecebeId;
+		if(cT == cR) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
+		}
 		Optional<Cliente> clienteTransfereO = clienteService.findById(clienteTransfereId);
 		Optional<Cliente> clienteRecebeO = clienteService.findById(clienteRecebeId);
 		BigDecimal valor_cliente = clienteTransfereO.get().getValor();
