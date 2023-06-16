@@ -22,6 +22,7 @@ public class Cliente extends RepresentationModel<Cliente> implements Serializabl
 	private Long id;
 	private String nome;
 	private BigDecimal valor;
+	private String cpf;
 	
 	public Cliente() {
 	}
@@ -50,20 +51,31 @@ public class Cliente extends RepresentationModel<Cliente> implements Serializabl
 		this.valor = valor;
 	}
 
+	public String getCpf() {
+		return cpf;
+	}
+
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(id);
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(cpf, id);
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		Cliente other = (Cliente) obj;
-		return Objects.equals(id, other.id);
-	}
+		return Objects.equals(cpf, other.cpf) && Objects.equals(id, other.id);
+	}	
 }

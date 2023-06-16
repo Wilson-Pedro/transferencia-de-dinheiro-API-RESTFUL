@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wamkti.wamk.entities.Cliente;
+import com.wamkti.wamk.entities.dtos.ClienteMinDTO;
 import com.wamkti.wamk.entities.dtos.ClienteRecodDTO;
 import com.wamkti.wamk.services.ClienteService;
 import com.wamkti.wamk.transferencia.Transferencia;
@@ -35,9 +36,15 @@ public class ClienteController {
 	private ClienteService clienteService;
 	
 	@PostMapping
-	public ResponseEntity<Cliente> salvarCliente(@Valid @RequestBody ClienteRecodDTO clienteRecodDTO) {
+	public ResponseEntity<Object> salvarCliente(@Valid @RequestBody ClienteRecodDTO clienteRecodDTO) {
 		var cliente = new Cliente();
 		BeanUtils.copyProperties(clienteRecodDTO, cliente);
+		List<Cliente> clientes = clienteService.findAll();
+		for(Cliente c : clientes) {
+			if(cliente.getCpf().equals(c.getCpf())) {
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Já existe um cliente com este cpf!");
+			}
+		}
 		return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.save(cliente));
 	}
 	
@@ -65,13 +72,13 @@ public class ClienteController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<Object> atualizarCLiente(@PathVariable Long id, 
-			@RequestBody @Valid ClienteRecodDTO clienteRecodDTO){
+			@RequestBody @Valid ClienteMinDTO clienteMinDTO){
 		Optional<Cliente> clienteO = clienteService.findById(id);
 		if(clienteO.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
 		}
 		var cliente = clienteO.get();
-		BeanUtils.copyProperties(clienteRecodDTO, cliente);
+		BeanUtils.copyProperties(clienteMinDTO, cliente);
 		return ResponseEntity.status(HttpStatus.OK).body(clienteService.save(cliente));
 	}
 	
