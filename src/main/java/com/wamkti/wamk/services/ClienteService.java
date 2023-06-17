@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.wamkti.wamk.entities.Cliente;
@@ -37,5 +39,9 @@ public class ClienteService {
 		cliente.setValor(cliente.getValor().add(valor_transferido));
 		clienteRepository.save(cliente);
 		
+	}
+
+	public Page<Cliente> findAllPagable(Pageable pageable) {
+		return clienteRepository.findAll(pageable);
 	}
 }
