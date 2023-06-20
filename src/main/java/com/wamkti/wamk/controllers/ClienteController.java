@@ -121,6 +121,11 @@ public class ClienteController {
 		Optional<Cliente> clienteRecebeO = clienteService.findById(clienteRecebeId);
 		BigDecimal valor_cliente = clienteTransfereO.get().getValor();
 		BigDecimal valor_transferido = transferencia.getValor();
+		int comaracao = valor_cliente.compareTo(valor_transferido);
+		if(comaracao < 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Você não pode transferir valores maiores do que o seu saldo!");
+		}
 		BigDecimal valor_atual = valor_cliente.subtract(valor_transferido);
 		var cliente = new Cliente();
 		BeanUtils.copyProperties(clienteTransfereO.get(), cliente);
