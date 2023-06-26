@@ -3,7 +3,6 @@ package com.wamkti.wamk.controllers;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,21 +116,26 @@ public class ClienteController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
 		}
-		Optional<Cliente> clienteTransfereO = clienteService.findById(clienteTransfereId);
-		Optional<Cliente> clienteRecebeO = clienteService.findById(clienteRecebeId);
-		BigDecimal valor_cliente = clienteTransfereO.get().getValor();
-		BigDecimal valor_transferido = transferencia.getValor();
-		int comaracao = valor_cliente.compareTo(valor_transferido);
+		int comaracao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
 		if(comaracao < 0) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Você não pode transferir valores maiores do que o seu saldo!");
 		}
-		BigDecimal valor_atual = valor_cliente.subtract(valor_transferido);
-		var cliente = new Cliente();
-		BeanUtils.copyProperties(clienteTransfereO.get(), cliente);
-		cliente.setValor(valor_atual);
-		clienteService.Transferir(clienteRecebeO.get(), valor_transferido);
-		return ResponseEntity.ok(clienteService.save(cliente));
-		
+		Cliente cliente = clienteService.Transferir(clienteTransfereId, transferencia, clienteRecebeId);
+		return ResponseEntity.ok(clienteService.atualizar(cliente));
 	}
 }
+
+/*
+ if(cT == cR) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
+		}
+		int comaracao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
+		if(comaracao < 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body("Você não pode transferir valores maiores do que o seu saldo!");
+		}
+		Cliente cliente = clienteService.Transferir(clienteTransfereId, transferencia);
+		return ResponseEntity.ok(clienteService.atualizar(cliente));
+ */
