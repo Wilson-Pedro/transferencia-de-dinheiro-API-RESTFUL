@@ -4,7 +4,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,33 +74,28 @@ public class ClienteController {
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> buscarCliente(@PathVariable Long id){
-		Optional<Cliente> clienteO = clienteService.findById(id);
-		if(clienteO.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
-		}
-		clienteO.get().add(linkTo(methodOn(ClienteController.class).listarClientes()).withSelfRel());
-		return ResponseEntity.ok(clienteO.get());
+		Cliente cliente = clienteService.findById(id);
+//		if(clienteO.isEmpty()) {
+//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
+//		}
+		cliente.add(linkTo(methodOn(ClienteController.class).listarClientes()).withSelfRel());
+		return ResponseEntity.ok(cliente);
 	}
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<Object> atualizarCLiente(@PathVariable Long id, 
 			@RequestBody @Valid ClienteMinDTO clienteMinDTO){
-		Optional<Cliente> clienteO = clienteService.findById(id);
-		if(clienteO.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
-		}
-		var cliente = clienteO.get();
+		Cliente cliente = clienteService.findById(id);
+		
 		BeanUtils.copyProperties(clienteMinDTO, cliente);
 		return ResponseEntity.status(HttpStatus.OK).body(clienteService.save(cliente));
 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deletarCliente(@PathVariable Long id){
-		Optional<Cliente> clienteO = clienteService.findById(id);
-		if(clienteO.isEmpty()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
-		}
-		clienteService.delete(clienteO.get());
+		Cliente cliente = clienteService.findById(id);
+		
+		clienteService.delete(cliente);
 		return ResponseEntity.status(HttpStatus.OK).body("Cliente Deletado!");
 	}
 	

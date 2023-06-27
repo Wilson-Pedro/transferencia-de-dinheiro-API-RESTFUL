@@ -2,9 +2,7 @@ package com.wamkti.wamk.services;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.repositories.ClienteRepository;
+import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
 import com.wamkti.wamk.transferencia.Transferencia;
 
 import jakarta.validation.Valid;
@@ -35,8 +34,12 @@ public class ClienteService {
 		return clienteRepository.findAll();
 	}
 
-	public Optional<Cliente> findById(Long id) {
-		return clienteRepository.findById(id);
+	public Cliente findById(Long id) {
+		return clienteRepository.findById(id)
+				.orElseThrow(() -> new ObjectNotFoundException(
+						"Obejto não encontrado! Id"
+								+ id + ", Tipo: " + Cliente.class.getName()));
+		
 	}
 
 	public void delete(Cliente cliente) {
@@ -55,24 +58,24 @@ public class ClienteService {
 	}
 	
 	public int validarTransferencia(Long clienteTransfereId, @Valid Transferencia transferencia) {
-		Optional<Cliente> clienteTransfereO = findById(clienteTransfereId);
-		BigDecimal valor_cliente = clienteTransfereO.get().getValor();
+		Cliente clienteTransfereO = findById(clienteTransfereId);
+		BigDecimal valor_cliente = clienteTransfereO.getValor();
 		BigDecimal valor_transferido = transferencia.getValor();
 		int comaracao = valor_cliente.compareTo(valor_transferido);
 		return comaracao;
 	}
 
 	public Cliente Transferir(Long clienteTransfereId, @Valid Transferencia transferencia, Long clienteRecebeId) {
-		Optional<Cliente> clienteTransfereO = findById(clienteTransfereId);
-		Optional<Cliente> clienteRecebeO = findById(clienteRecebeId);
-		BigDecimal valor_cliente = clienteTransfereO.get().getValor();
+		Cliente clienteTransfereO = findById(clienteTransfereId);
+		Cliente clienteRecebeO = findById(clienteRecebeId);
+		BigDecimal valor_cliente = clienteTransfereO.getValor();
 		BigDecimal valor_transferido = transferencia.getValor();
 		BigDecimal valor_atual = valor_cliente.subtract(valor_transferido);
-		clienteTransfereO.get().setValor(valor_atual);
-		atualizar(clienteTransfereO.get());
-		clienteRecebeO.get().setValor(clienteRecebeO.get().getValor().add(valor_transferido));
-		atualizar(clienteRecebeO.get());
+		clienteTransfereO.setValor(valor_atual);
+		atualizar(clienteTransfereO);
+		clienteRecebeO.setValor(clienteRecebeO.getValor().add(valor_transferido));
+		atualizar(clienteRecebeO);
 		
-		return clienteTransfereO.get();
+		return clienteTransfereO;
 	}
 }
