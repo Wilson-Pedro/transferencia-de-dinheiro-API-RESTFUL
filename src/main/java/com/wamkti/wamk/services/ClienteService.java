@@ -5,8 +5,11 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
+
 
 import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.repositories.ClienteRepository;
@@ -47,15 +50,19 @@ public class ClienteService {
 		
 	}
 
-//	public void Transferir(Cliente cliente, BigDecimal valor_transferido) {
-//		cliente.setValor(cliente.getValor().add(valor_transferido));
-//		clienteRepository.save(cliente);
-//		
-//	}
-
 	public Page<Cliente> findAllPagable(Pageable pageable) {
 		return clienteRepository.findAll(pageable);
 	}
+	
+	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
+		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+		return clienteRepository.findAll(pageRequest);
+	}
+	
+//	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
+//		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
+//		return clienteRepository.findAll(pageRequest);
+//	}
 	
 	public int validarTransferencia(Long clienteTransfereId, @Valid Transferencia transferencia) {
 		Cliente clienteTransfereO = findById(clienteTransfereId);

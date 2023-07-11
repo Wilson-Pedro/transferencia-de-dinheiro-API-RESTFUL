@@ -34,9 +34,9 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 
 		for (ObjectError error : ex.getBindingResult().getAllErrors()) {
 			String nome = ((FieldError) error).getField();
-			String menssagem = messageSource.getMessage(error, LocaleContextHolder.getLocale());
+			String mensagem = messageSource.getMessage(error, LocaleContextHolder.getLocale());
 
-			campos.add(new Campo(nome, menssagem));
+			campos.add(new Campo(nome, mensagem));
 		}
 
 		Problema problema = new Problema();

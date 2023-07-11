@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.wamkti.wamk.entities.Cliente;
@@ -61,8 +61,12 @@ public class ClienteController {
 	}
 	
 	@GetMapping("/page")
-	public ResponseEntity<Page<Cliente>> paginar(Pageable pageable){
-		Page<Cliente> clientes = clienteService.findAllPagable(pageable);
+	public ResponseEntity<Page<Cliente>> paginar(
+			@RequestParam(value="page", defaultValue = "0") Integer page,
+			@RequestParam(value="linesPerPage", defaultValue = "24") Integer linesPerPage,
+			@RequestParam(value="orderBy", defaultValue = "nome") String orderBy,
+			@RequestParam(value="direction", defaultValue = "ASC") String direction){
+		Page<Cliente> clientes = clienteService.findPage(page, linesPerPage, orderBy, direction);
 		if(!clientes.isEmpty()) {
 			for(Cliente cliente : clientes) {
 				Long id = cliente.getId();
@@ -71,6 +75,7 @@ public class ClienteController {
 		}
 		return ResponseEntity.ok(clientes);
 	}
+	
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> buscarCliente(@PathVariable Long id){
