@@ -9,9 +9,16 @@ public class Transferencia implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@NotNull
+	private Long clienteRecebeId;
+	
+	@NotNull
 	private BigDecimal valor;
 
 	public BigDecimal getValor() {
 		return valor;
+	}
+
+	public Long getClienteRecebeId() {
+		return clienteRecebeId;
 	}
 }

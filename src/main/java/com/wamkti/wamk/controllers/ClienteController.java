@@ -104,23 +104,20 @@ public class ClienteController {
 		return ResponseEntity.status(HttpStatus.OK).body("Cliente Deletado!");
 	}
 	
-	@PutMapping("/{clienteTransfereId}/transferencia/{clienteRecebeId}")
+	@PutMapping("/{clienteTransfereId}/transferencia")
 	public ResponseEntity<Object> transferirValor(
 			@PathVariable Long clienteTransfereId,
-			@PathVariable Long clienteRecebeId,
 			@Valid @RequestBody Transferencia transferencia){
 		Long cT = clienteTransfereId;
-		Long cR = clienteRecebeId;
-		if(cT == cR) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		Long cR = transferencia.getClienteRecebeId();
+		if(cT == cR) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
-		}
+		
 		int comaracao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
-		if(comaracao < 0) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		if(comaracao < 0) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Você não pode transferir valores maiores do que o seu saldo!");
-		}
-		Cliente cliente = clienteService.Transferir(clienteTransfereId, transferencia, clienteRecebeId);
+		
+		Cliente cliente = clienteService.Transferir(clienteTransfereId, transferencia, transferencia.getClienteRecebeId());
 		return ResponseEntity.ok(clienteService.atualizar(cliente));
 	}
 }
