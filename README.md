@@ -55,21 +55,27 @@ http://localhost:8080/clientes
 
 # GET ONE
 ```
-http://localhost:8080/clientes/2
+http://localhost:8080/clientes/1
 ```
 ![GET ONE](https://github.com/Wilson-Pedro/images/blob/main/transfer%C3%AAncia/endpoints/GET-ONE.PNG)
 
 # PUT
 ```
-http://localhost:8080/clientes/6
+http://localhost:8080/clientes/8
 ```
 ![PUT](https://github.com/Wilson-Pedro/images/blob/main/transfer%C3%AAncia/endpoints/PUT.PNG)
 
 # DELETE
 ```
-http://localhost:8080/clientes/7
+http://localhost:8080/clientes/8
 ```
 ![DELETE](https://github.com/Wilson-Pedro/images/blob/main/transfer%C3%AAncia/endpoints/DELETE.PNG)
+
+# PUT
+```
+http://localhost:8080/clientes/2/transferencia
+```
+![DELETE](https://github.com/Wilson-Pedro/images/blob/main/transfer%C3%AAncia/endpoints/TRANSFERENCIA.PNG)
 
 
 ## Autor
