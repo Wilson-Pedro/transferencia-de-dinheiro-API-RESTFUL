@@ -55,10 +55,6 @@ public class Cliente extends RepresentationModel<Cliente> implements Serializabl
 		return cpf;
 	}
 
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -1,6 +1,7 @@
 package com.wamkti.wamk.services;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
-
 import com.wamkti.wamk.entities.Cliente;
+import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
 import com.wamkti.wamk.repositories.ClienteRepository;
 import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
 import com.wamkti.wamk.transferencia.Transferencia;
-
-import jakarta.validation.Valid;
 
 @Service
 public class ClienteService {
@@ -64,25 +63,36 @@ public class ClienteService {
 //		return clienteRepository.findAll(pageRequest);
 //	}
 	
-	public int validarTransferencia(Long clienteTransfereId, @Valid Transferencia transferencia) {
-		Cliente clienteTransfereO = findById(clienteTransfereId);
-		BigDecimal valor_cliente = clienteTransfereO.getValor();
-		BigDecimal valor_transferido = transferencia.getValor();
-		int comaracao = valor_cliente.compareTo(valor_transferido);
-		return comaracao;
+	public int validarTransferencia(Long clienteTransfereId, Transferencia transferencia) {
+		Cliente clienteTransfereOpt = findById(clienteTransfereId);
+		BigDecimal valorCliente = clienteTransfereOpt.getValor();
+		BigDecimal valorTransferido = transferencia.getValor();
+		int comparacao = valorCliente.compareTo(valorTransferido);
+		return comparacao;
 	}
 
-	public Cliente Transferir(Long clienteTransfereId, @Valid Transferencia transferencia, Long clienteRecebeId) {
-		Cliente clienteTransfereO = findById(clienteTransfereId);
-		Cliente clienteRecebeO = findById(clienteRecebeId);
-		BigDecimal valor_cliente = clienteTransfereO.getValor();
-		BigDecimal valor_transferido = transferencia.getValor();
-		BigDecimal valor_atual = valor_cliente.subtract(valor_transferido);
-		clienteTransfereO.setValor(valor_atual);
-		atualizar(clienteTransfereO);
-		clienteRecebeO.setValor(clienteRecebeO.getValor().add(valor_transferido));
-		atualizar(clienteRecebeO);
+	public Cliente Transferir(Long clienteTransfereId, Transferencia transferencia, Long clienteRecebeId) {
+		var clienteTransfere = findById(clienteTransfereId);
+		var clienteRecebe = findById(clienteRecebeId);
+		BigDecimal valorDoCliente = clienteTransfere.getValor();
+		BigDecimal valorTransferido = transferencia.getValor();
+		BigDecimal valorAtualDoCliente = valorDoCliente.subtract(valorTransferido);
+		clienteTransfere.setValor(valorAtualDoCliente);
+		atualizar(clienteTransfere);
+		clienteRecebe.setValor(clienteRecebe.getValor().add(valorTransferido));
+		atualizar(clienteRecebe);
 		
-		return clienteTransfereO;
+		return clienteTransfere;
+	}
+
+	public ComprovanteDTO processarComprovante(Long transfereId, Long recebeId, BigDecimal valorTransferido) {
+		var clienteTransfereOpt = findById(transfereId);
+		var clienteRecebeO = findById(recebeId);
+		ComprovanteDTO comprovanteDTO = new ComprovanteDTO();
+		comprovanteDTO.setNomeOrigem(clienteTransfereOpt.getNome());
+		comprovanteDTO.setNomeDestino(clienteRecebeO.getNome());
+		comprovanteDTO.setValorTransferido(valorTransferido);
+		comprovanteDTO.setDataTransferencia(OffsetDateTime.now());
+		return comprovanteDTO;
 	}
 }

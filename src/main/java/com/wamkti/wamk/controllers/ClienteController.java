@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.entities.dtos.ClienteMinDTO;
 import com.wamkti.wamk.entities.dtos.ClienteRecodDTO;
+import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
 import com.wamkti.wamk.services.ClienteService;
 import com.wamkti.wamk.transferencia.Transferencia;
 
@@ -108,30 +109,22 @@ public class ClienteController {
 	public ResponseEntity<Object> transferirValor(
 			@PathVariable Long clienteTransfereId,
 			@Valid @RequestBody Transferencia transferencia){
-		Long cT = clienteTransfereId;
-		Long cR = transferencia.getClienteRecebeId();
-		if(cT == cR) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		Long clienteRecebeId = transferencia.getClienteRecebeId();
+		int validacao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
+		if(clienteTransfereId == clienteRecebeId) 
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
 		
-		int comaracao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
-		if(comaracao < 0) return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+		if(validacao < 0) 
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Você não pode transferir valores maiores do que o seu saldo!");
 		
-		Cliente cliente = clienteService.Transferir(clienteTransfereId, transferencia, transferencia.getClienteRecebeId());
-		return ResponseEntity.ok(clienteService.atualizar(cliente));
+		var cliente = clienteService.Transferir(clienteTransfereId, transferencia, clienteRecebeId);
+		
+		ComprovanteDTO comprovante = clienteService.processarComprovante(clienteTransfereId, clienteRecebeId, transferencia.getValor());
+		
+		clienteService.atualizar(cliente);
+		
+		return ResponseEntity.ok(comprovante);
 	}
 }
-
-/*
- if(cT == cR) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
-		}
-		int comaracao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
-		if(comaracao < 0) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body("Você não pode transferir valores maiores do que o seu saldo!");
-		}
-		Cliente cliente = clienteService.Transferir(clienteTransfereId, transferencia);
-		return ResponseEntity.ok(clienteService.atualizar(cliente));
- */
