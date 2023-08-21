@@ -1,15 +1,18 @@
-package com.wamkti.wamk.transferencia;
+package com.wamkti.wamk.entities.dtos;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.NotNull;
 
-public class Transferencia implements Serializable{
+public class TransferenciaDTO implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
 	@NotNull
-	private Long clienteRecebeId;
+	private Long transfereId;
+	
+	@NotNull
+	private Long recebeId;
 	
 	@NotNull
 	private BigDecimal valor;
@@ -18,7 +21,11 @@ public class Transferencia implements Serializable{
 		return valor;
 	}
 
-	public Long getClienteRecebeId() {
-		return clienteRecebeId;
+	public Long getTransfereId() {
+		return transfereId;
+	}
+
+	public Long getRecebeId() {
+		return recebeId;
 	}
 }

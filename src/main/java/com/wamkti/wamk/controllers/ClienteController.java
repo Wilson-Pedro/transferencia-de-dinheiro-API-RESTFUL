@@ -24,8 +24,8 @@ import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.entities.dtos.ClienteMinDTO;
 import com.wamkti.wamk.entities.dtos.ClienteRecodDTO;
 import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
+import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
 import com.wamkti.wamk.services.ClienteService;
-import com.wamkti.wamk.transferencia.Transferencia;
 
 import jakarta.validation.Valid;
 
@@ -105,13 +105,12 @@ public class ClienteController {
 		return ResponseEntity.status(HttpStatus.OK).body("Cliente Deletado!");
 	}
 	
-	@PutMapping("/{clienteTransfereId}/transferencia")
-	public ResponseEntity<Object> transferirValor(
-			@PathVariable Long clienteTransfereId,
-			@Valid @RequestBody Transferencia transferencia){
-		Long clienteRecebeId = transferencia.getClienteRecebeId();
-		int validacao = clienteService.validarTransferencia(clienteTransfereId, transferencia);
-		if(clienteTransfereId == clienteRecebeId) 
+	@PostMapping("/transferencia")
+	public ResponseEntity<Object> transferirValor(@Valid @RequestBody TransferenciaDTO transferenciaDTO){
+		Long transfereId = transferenciaDTO.getTransfereId();
+		Long recebeId = transferenciaDTO.getRecebeId();
+		int validacao = clienteService.validarTransferencia(transfereId, transferenciaDTO);
+		if(transfereId == recebeId) 
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
 		
@@ -119,9 +118,9 @@ public class ClienteController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("Você não pode transferir valores maiores do que o seu saldo!");
 		
-		var cliente = clienteService.Transferir(clienteTransfereId, transferencia, clienteRecebeId);
+		var cliente = clienteService.Transferir(transfereId, transferenciaDTO, recebeId);
 		
-		ComprovanteDTO comprovante = clienteService.processarComprovante(clienteTransfereId, clienteRecebeId, transferencia.getValor());
+		ComprovanteDTO comprovante = clienteService.processarComprovante(transfereId, recebeId, transferenciaDTO.getValor());
 		
 		clienteService.atualizar(cliente);
 		

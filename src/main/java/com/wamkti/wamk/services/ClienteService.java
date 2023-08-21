@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
+import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
 import com.wamkti.wamk.repositories.ClienteRepository;
 import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
-import com.wamkti.wamk.transferencia.Transferencia;
 
 @Service
 public class ClienteService {
@@ -63,7 +63,7 @@ public class ClienteService {
 //		return clienteRepository.findAll(pageRequest);
 //	}
 	
-	public int validarTransferencia(Long clienteTransfereId, Transferencia transferencia) {
+	public int validarTransferencia(Long clienteTransfereId, TransferenciaDTO transferencia) {
 		Cliente clienteTransfereOpt = findById(clienteTransfereId);
 		BigDecimal valorCliente = clienteTransfereOpt.getValor();
 		BigDecimal valorTransferido = transferencia.getValor();
@@ -71,7 +71,7 @@ public class ClienteService {
 		return comparacao;
 	}
 
-	public Cliente Transferir(Long clienteTransfereId, Transferencia transferencia, Long clienteRecebeId) {
+	public Cliente Transferir(Long clienteTransfereId, TransferenciaDTO transferencia, Long clienteRecebeId) {
 		var clienteTransfere = findById(clienteTransfereId);
 		var clienteRecebe = findById(clienteRecebeId);
 		BigDecimal valorDoCliente = clienteTransfere.getValor();
