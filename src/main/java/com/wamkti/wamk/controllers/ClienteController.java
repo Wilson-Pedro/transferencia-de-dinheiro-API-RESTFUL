@@ -109,19 +109,9 @@ public class ClienteController {
 	public ResponseEntity<Object> transferirValor(@Valid @RequestBody TransferenciaDTO transferenciaDTO){
 		Long transfereId = transferenciaDTO.getTransfereId();
 		Long recebeId = transferenciaDTO.getRecebeId();
-		int validacao = clienteService.validarTransferencia(transfereId, transferenciaDTO);
-		if(transfereId == recebeId) 
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body("Um cliente não pode transferir dinheiro para ele mesmo!");
-		
-		if(validacao < 0) 
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body("Você não pode transferir valores maiores do que o seu saldo!");
-		
+		clienteService.validarTransferencia(transfereId, transferenciaDTO);
 		var cliente = clienteService.Transferir(transfereId, transferenciaDTO, recebeId);
-		
 		ComprovanteDTO comprovante = clienteService.processarComprovante(transfereId, recebeId, transferenciaDTO.getValor());
-		
 		clienteService.atualizar(cliente);
 		
 		return ResponseEntity.ok(comprovante);

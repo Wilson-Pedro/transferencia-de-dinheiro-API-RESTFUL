@@ -19,7 +19,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.wamkti.wamk.services.exceptions.MesmoClienteException;
 import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
+import com.wamkti.wamk.services.exceptions.SaldoInsuficienteException;
 
 @ControllerAdvice
 public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
@@ -59,5 +61,31 @@ public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 		problema.setTitulo("Id não encontrado");
 
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problema);
+	}
+	
+	@ExceptionHandler(SaldoInsuficienteException.class)
+	public ResponseEntity<Problema> SaldoInsuficienteException(){
+		
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		
+		Problema problema = new Problema();
+		problema.setStatus(status.value());
+		problema.setDataHora(OffsetDateTime.now());
+		problema.setTitulo("Saldo insuficiente!");
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problema);
+	}
+	
+	@ExceptionHandler(MesmoClienteException.class)
+	public ResponseEntity<Problema> MesmoClienteException(){
+		
+		HttpStatus status = HttpStatus.BAD_REQUEST;
+		
+		Problema problema = new Problema();
+		problema.setStatus(status.value());
+		problema.setDataHora(OffsetDateTime.now());
+		problema.setTitulo("Você não pode fazer uma transação para você mesmo.");
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problema);
 	}
 }

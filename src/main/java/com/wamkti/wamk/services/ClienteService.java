@@ -15,7 +15,9 @@ import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
 import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
 import com.wamkti.wamk.repositories.ClienteRepository;
+import com.wamkti.wamk.services.exceptions.MesmoClienteException;
 import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
+import com.wamkti.wamk.services.exceptions.SaldoInsuficienteException;
 
 @Service
 public class ClienteService {
@@ -39,8 +41,7 @@ public class ClienteService {
 	public Cliente findById(Long id) {
 		return clienteRepository.findById(id)
 				.orElseThrow(() -> new ObjectNotFoundException(
-						"Obejto não encontrado! Id"
-								+ id + ", Tipo: " + Cliente.class.getName()));
+						"Id não encontrado!"));
 		
 	}
 
@@ -58,17 +59,17 @@ public class ClienteService {
 		return clienteRepository.findAll(pageRequest);
 	}
 	
-//	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
-//		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-//		return clienteRepository.findAll(pageRequest);
-//	}
-	
-	public int validarTransferencia(Long clienteTransfereId, TransferenciaDTO transferencia) {
+	public void validarTransferencia(Long clienteTransfereId, TransferenciaDTO transferencia) {
 		Cliente clienteTransfereOpt = findById(clienteTransfereId);
+		Long transfereId = transferencia.getTransfereId();
+		Long recebeId = transferencia.getRecebeId();
 		BigDecimal valorCliente = clienteTransfereOpt.getValor();
 		BigDecimal valorTransferido = transferencia.getValor();
 		int comparacao = valorCliente.compareTo(valorTransferido);
-		return comparacao;
+		if(transfereId == recebeId) 
+			throw new MesmoClienteException("Você não pode fazer uma transação para você mesmo.");
+		else if(comparacao < 0) 
+			throw new SaldoInsuficienteException("Saldo Insuficiente!");
 	}
 
 	public Cliente Transferir(Long clienteTransfereId, TransferenciaDTO transferencia, Long clienteRecebeId) {
