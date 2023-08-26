@@ -26,6 +26,7 @@ import com.wamkti.wamk.entities.dtos.ClienteRecodDTO;
 import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
 import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
 import com.wamkti.wamk.services.ClienteService;
+import com.wamkti.wamk.services.TransacaoService;
 
 import jakarta.validation.Valid;
 
@@ -35,6 +36,9 @@ public class ClienteController {
 
 	@Autowired
 	private ClienteService clienteService;
+	
+	@Autowired
+	private TransacaoService transacaoService;
 	
 	@PostMapping
 	public ResponseEntity<Object> salvarCliente(@Valid @RequestBody ClienteRecodDTO clienteRecodDTO) {
@@ -107,12 +111,14 @@ public class ClienteController {
 	
 	@PostMapping("/transferencia")
 	public ResponseEntity<Object> transferirValor(@Valid @RequestBody TransferenciaDTO transferenciaDTO){
-		Long transfereId = transferenciaDTO.getTransfereId();
-		Long recebeId = transferenciaDTO.getRecebeId();
-		clienteService.validarTransferencia(transfereId, transferenciaDTO);
-		var cliente = clienteService.Transferir(transfereId, transferenciaDTO, recebeId);
-		ComprovanteDTO comprovante = clienteService.processarComprovante(transfereId, recebeId, transferenciaDTO.getValor());
-		clienteService.atualizar(cliente);
+		transacaoService.validarTransferencia(transferenciaDTO);
+		transacaoService.Transferir(transferenciaDTO);
+		ComprovanteDTO comprovante = clienteService
+				.processarComprovante(
+						transferenciaDTO.getTransfereId(), 
+						transferenciaDTO.getRecebeId(), 
+						transferenciaDTO.getValor());
+		//clienteService.atualizar(cliente);
 		
 		return ResponseEntity.ok(comprovante);
 	}

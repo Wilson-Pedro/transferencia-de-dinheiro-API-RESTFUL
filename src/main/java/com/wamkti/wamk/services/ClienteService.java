@@ -13,11 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.wamkti.wamk.entities.Cliente;
 import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
-import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
 import com.wamkti.wamk.repositories.ClienteRepository;
-import com.wamkti.wamk.services.exceptions.MesmoClienteException;
 import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
-import com.wamkti.wamk.services.exceptions.SaldoInsuficienteException;
 
 @Service
 public class ClienteService {
@@ -57,33 +54,6 @@ public class ClienteService {
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return clienteRepository.findAll(pageRequest);
-	}
-	
-	public void validarTransferencia(Long clienteTransfereId, TransferenciaDTO transferencia) {
-		Cliente clienteTransfereOpt = findById(clienteTransfereId);
-		Long transfereId = transferencia.getTransfereId();
-		Long recebeId = transferencia.getRecebeId();
-		BigDecimal valorCliente = clienteTransfereOpt.getValor();
-		BigDecimal valorTransferido = transferencia.getValor();
-		int comparacao = valorCliente.compareTo(valorTransferido);
-		if(transfereId == recebeId) 
-			throw new MesmoClienteException("Você não pode fazer uma transação para você mesmo.");
-		else if(comparacao < 0) 
-			throw new SaldoInsuficienteException("Saldo Insuficiente!");
-	}
-
-	public Cliente Transferir(Long clienteTransfereId, TransferenciaDTO transferencia, Long clienteRecebeId) {
-		var clienteTransfere = findById(clienteTransfereId);
-		var clienteRecebe = findById(clienteRecebeId);
-		BigDecimal valorDoCliente = clienteTransfere.getValor();
-		BigDecimal valorTransferido = transferencia.getValor();
-		BigDecimal valorAtualDoCliente = valorDoCliente.subtract(valorTransferido);
-		clienteTransfere.setValor(valorAtualDoCliente);
-		atualizar(clienteTransfere);
-		clienteRecebe.setValor(clienteRecebe.getValor().add(valorTransferido));
-		atualizar(clienteRecebe);
-		
-		return clienteTransfere;
 	}
 
 	public ComprovanteDTO processarComprovante(Long transfereId, Long recebeId, BigDecimal valorTransferido) {
