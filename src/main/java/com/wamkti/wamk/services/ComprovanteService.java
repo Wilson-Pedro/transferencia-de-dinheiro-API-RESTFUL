@@ -13,15 +13,23 @@ public class ComprovanteService {
 	
 	@Autowired
 	private ClienteService clienteService;
+	
+	@Autowired
+	private TransacaoService transacaoService;
 
 	public ComprovanteDTO processarComprovante(Long transfereId, Long recebeId, BigDecimal valorTransferido) {
+		transacaoService.Transferir(transfereId, recebeId, valorTransferido);
+		
 		var clienteTransfere = clienteService.findById(transfereId);
 		var clienteRecebe = clienteService.findById(recebeId);
+		
 		ComprovanteDTO comprovanteDTO = new ComprovanteDTO();
+		
 		comprovanteDTO.setPagador(clienteTransfere.getNome());
 		comprovanteDTO.setReceptor(clienteRecebe.getNome());
 		comprovanteDTO.setValorTransferido(valorTransferido);
 		comprovanteDTO.setDataTransferencia(OffsetDateTime.now());
+		
 		return comprovanteDTO;
 	}
 }

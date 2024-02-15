@@ -10,8 +10,9 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import com.wamkti.wamk.entities.Cliente;
+import com.wamkti.wamk.exceptionhandler.exceptions.CpfExistenteException;
+import com.wamkti.wamk.exceptionhandler.exceptions.ObjectNotFoundException;
 import com.wamkti.wamk.repositories.ClienteRepository;
-import com.wamkti.wamk.services.exceptions.ObjectNotFoundException;
 
 @Service
 public class ClienteService {
@@ -20,9 +21,10 @@ public class ClienteService {
 	private ClienteRepository clienteRepository;
 
 	public Cliente save(Cliente cliente) {
+		validarCpf(cliente.getCpf());
 		return clienteRepository.save(cliente);
 	}
-	
+
 	public Cliente atualizar(Cliente cliente) {
 		cliente.setId(cliente.getId());
 		return clienteRepository.save(cliente);
@@ -34,8 +36,7 @@ public class ClienteService {
 
 	public Cliente findById(Long id) {
 		return clienteRepository.findById(id)
-				.orElseThrow(() -> new ObjectNotFoundException(
-						"Id não encontrado!"));
+				.orElseThrow(() -> new ObjectNotFoundException("Id não encontrado!"));
 		
 	}
 
@@ -51,5 +52,10 @@ public class ClienteService {
 	public Page<Cliente> findPage(Integer page, Integer linesPerPage, String orderBy, String direction){
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
 		return clienteRepository.findAll(pageRequest);
+	}
+	
+	private void validarCpf(String cpf) {
+		if(clienteRepository.existsByCpf(cpf))
+			throw new CpfExistenteException();
 	}
 }

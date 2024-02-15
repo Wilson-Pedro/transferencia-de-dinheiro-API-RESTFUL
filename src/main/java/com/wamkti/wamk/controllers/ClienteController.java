@@ -27,9 +27,6 @@ import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
 import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
 import com.wamkti.wamk.services.ClienteService;
 import com.wamkti.wamk.services.ComprovanteService;
-import com.wamkti.wamk.services.TransacaoService;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/clientes")
@@ -39,21 +36,11 @@ public class ClienteController {
 	private ClienteService clienteService;
 	
 	@Autowired
-	private TransacaoService transacaoService;
-	
-	@Autowired
 	private ComprovanteService comprovanteService;
 	
 	@PostMapping
-	public ResponseEntity<Object> salvarCliente(@Valid @RequestBody ClienteRecodDTO clienteRecodDTO) {
-		var cliente = new Cliente();
-		BeanUtils.copyProperties(clienteRecodDTO, cliente);
-		List<Cliente> clientes = clienteService.findAll();
-		for(Cliente c : clientes) {
-			if(cliente.getCpf().equals(c.getCpf())) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Já existe um cliente com este cpf!");
-			}
-		}
+	public ResponseEntity<Cliente> salvarCliente(@RequestBody ClienteRecodDTO clienteRecodDTO) {
+		var cliente = new Cliente(clienteRecodDTO);
 		return ResponseEntity.status(HttpStatus.CREATED).body(clienteService.save(cliente));
 	}
 	
@@ -89,34 +76,26 @@ public class ClienteController {
 	@GetMapping("/{id}")
 	public ResponseEntity<Object> buscarCliente(@PathVariable Long id){
 		Cliente cliente = clienteService.findById(id);
-//		if(clienteO.isEmpty()) {
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Cliente não encontrado!");
-//		}
 		cliente.add(linkTo(methodOn(ClienteController.class).listarClientes()).withSelfRel());
 		return ResponseEntity.ok(cliente);
 	}
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<Object> atualizarCLiente(@PathVariable Long id, 
-			@RequestBody @Valid ClienteMinDTO clienteMinDTO){
+			@RequestBody ClienteMinDTO clienteMinDTO){
 		Cliente cliente = clienteService.findById(id);
-		
 		BeanUtils.copyProperties(clienteMinDTO, cliente);
 		return ResponseEntity.status(HttpStatus.OK).body(clienteService.save(cliente));
 	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deletarCliente(@PathVariable Long id){
-		Cliente cliente = clienteService.findById(id);
-		
-		clienteService.delete(cliente);
+		clienteService.delete(clienteService.findById(id));
 		return ResponseEntity.status(HttpStatus.OK).body("Cliente Deletado!");
 	}
 	
 	@PostMapping("/transferencia")
-	public ResponseEntity<Object> transferirValor(@Valid @RequestBody TransferenciaDTO transferenciaDTO){
-		transacaoService.validarTransferencia(transferenciaDTO);
-		transacaoService.Transferir(transferenciaDTO);
+	public ResponseEntity<Object> transferirValor(@RequestBody TransferenciaDTO transferenciaDTO){
 		ComprovanteDTO comprovante = comprovanteService
 				.processarComprovante(
 						transferenciaDTO.getTransfereId(), 

@@ -17,6 +17,12 @@ public class TransferenciaDTO implements Serializable{
 	@NotNull
 	private BigDecimal valor;
 
+	public TransferenciaDTO(Long transfereId, Long recebeId, BigDecimal valor) {
+		this.transfereId = transfereId;
+		this.recebeId = recebeId;
+		this.valor = valor;
+	}
+
 	public BigDecimal getValor() {
 		return valor;
 	}

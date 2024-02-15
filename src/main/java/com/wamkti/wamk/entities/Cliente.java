@@ -6,6 +6,8 @@ import java.util.Objects;
 
 import org.springframework.hateoas.RepresentationModel;
 
+import com.wamkti.wamk.entities.dtos.ClienteRecodDTO;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,11 +22,27 @@ public class Cliente extends RepresentationModel<Cliente> implements Serializabl
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
 	private String nome;
+	
 	private BigDecimal valor;
+	
 	private String cpf;
 	
 	public Cliente() {
+	}
+
+	public Cliente(Long id, String nome, BigDecimal valor, String cpf) {
+		this.id = id;
+		this.nome = nome;
+		this.valor = valor;
+		this.cpf = cpf;
+	}
+	
+	public Cliente(ClienteRecodDTO record) {
+		nome = record.nome();
+		valor = record.valor();
+		cpf = record.cpf();
 	}
 
 	public Long getId() {

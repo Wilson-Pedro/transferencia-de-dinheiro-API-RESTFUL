@@ -5,10 +5,8 @@ import java.math.BigDecimal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wamkti.wamk.entities.Cliente;
-import com.wamkti.wamk.entities.dtos.TransferenciaDTO;
-import com.wamkti.wamk.services.exceptions.MesmoClienteException;
-import com.wamkti.wamk.services.exceptions.SaldoInsuficienteException;
+import com.wamkti.wamk.exceptionhandler.exceptions.MesmoClienteException;
+import com.wamkti.wamk.exceptionhandler.exceptions.SaldoInsuficienteException;
 
 @Service
 public class TransacaoService {
@@ -16,28 +14,24 @@ public class TransacaoService {
 	@Autowired
 	private ClienteService clienteService;
 
-	public void validarTransferencia(TransferenciaDTO transferenciaDTO) {
-		Long transfereId = transferenciaDTO.getTransfereId();
-		Long recebeId = transferenciaDTO.getRecebeId();
-		Cliente clienteTransfere = clienteService.findById(transfereId);
-		BigDecimal valorCliente = clienteTransfere.getValor();
-		BigDecimal valorTransferido = transferenciaDTO.getValor();
-		int comparacao = valorCliente.compareTo(valorTransferido);
+	private void validarTransferencia(Long transfereId, Long recebeId, BigDecimal valorTransferido, BigDecimal valorDoCliente) {
+		
+		int comparacao = valorDoCliente.compareTo(valorTransferido);
 		if(transfereId == recebeId) 
 			throw new MesmoClienteException("Você não pode fazer uma transação para você mesmo.");
 		else if(comparacao < 0) 
 			throw new SaldoInsuficienteException("Saldo Insuficiente!");
 	}
 
-	public void Transferir(TransferenciaDTO transferenciaDTO) {
-		Long transfereId = transferenciaDTO.getTransfereId();
-		Long recebeId = transferenciaDTO.getRecebeId();
+	public void Transferir(Long transfereId, Long recebeId, BigDecimal valorTransferido) {
 		
 		var clienteTransfere = clienteService.findById(transfereId);
 		var clienteRecebe = clienteService.findById(recebeId);
 		
 		BigDecimal valorDoCliente = clienteTransfere.getValor();
-		BigDecimal valorTransferido = transferenciaDTO.getValor();
+		
+		validarTransferencia(transfereId, recebeId, valorTransferido, valorDoCliente);
+		
 		BigDecimal valorAtualDoCliente = valorDoCliente.subtract(valorTransferido);
 		
 		clienteTransfere.setValor(valorAtualDoCliente);
