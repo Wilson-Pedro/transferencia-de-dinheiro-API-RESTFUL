@@ -32,6 +32,8 @@ class ClienteServiceTest {
 	@Test
 	@Order(1)
 	void mustSaveTheClientSuccessfully() {
+		clienteRepository.deleteAll();
+		
 		Cliente wilson = new Cliente();
 		wilson.setId(null);
 		wilson.setNome("Wilson");
