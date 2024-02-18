@@ -14,15 +14,6 @@ public class TransacaoService {
 	@Autowired
 	private ClienteService clienteService;
 
-	private void validarTransferencia(Long transfereId, Long recebeId, BigDecimal valorTransferido, BigDecimal valorDoCliente) {
-		
-		int comparacao = valorDoCliente.compareTo(valorTransferido);
-		if(transfereId == recebeId) 
-			throw new MesmoClienteException("Você não pode fazer uma transação para você mesmo.");
-		else if(comparacao < 0) 
-			throw new SaldoInsuficienteException("Saldo Insuficiente!");
-	}
-
 	public void Transferir(Long transfereId, Long recebeId, BigDecimal valorTransferido) {
 		
 		var clienteTransfere = clienteService.findById(transfereId);
@@ -39,5 +30,15 @@ public class TransacaoService {
 		
 		clienteRecebe.setValor(clienteRecebe.getValor().add(valorTransferido));
 		clienteService.atualizar(clienteRecebe);
+	}
+	
+	private void validarTransferencia(Long transfereId, Long recebeId, BigDecimal valorTransferido, BigDecimal valorDoCliente) {
+		
+		int comparacao = valorDoCliente.compareTo(valorTransferido);
+		
+		if(transfereId == recebeId) 
+			throw new MesmoClienteException("Você não pode fazer uma transação para você mesmo.");
+		else if(comparacao < 0) 
+			throw new SaldoInsuficienteException("Saldo Insuficiente!");
 	}
 }

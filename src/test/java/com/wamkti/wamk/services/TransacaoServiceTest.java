@@ -9,20 +9,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.wamkti.wamk.entities.Cliente;
-import com.wamkti.wamk.entities.dtos.ComprovanteDTO;
 import com.wamkti.wamk.repositories.ClienteRepository;
 
 @SpringBootTest
-public class ComprovanteServiceTest {
+class TransacaoServiceTest {
+	
+	@Autowired
+	private ClienteRepository clienteRepository;
+	
+	@Autowired
+	private TransacaoService transacaoService;
 
-	@Autowired
-	ClienteRepository clienteRepository;
-	
-	@Autowired
-	ComprovanteService comprovanteService;
-	
 	@Test
-	void mustProcessVoucherSuccessfully() {
+	void mustCompleteTheTransferSuccessfully() {
 		clienteRepository.deleteAll();
 		
 		clienteRepository.save(new Cliente(null, "Julia", new BigDecimal("1000"), "12260053020"));
@@ -31,10 +30,12 @@ public class ComprovanteServiceTest {
 		Long transfereId = clienteRepository.findAll().get(0).getId();
 		Long recebeId = clienteRepository.findAll().get(1).getId();
 		
-		ComprovanteDTO comprovanteDTO = comprovanteService.processarComprovante(transfereId, recebeId, new BigDecimal("500"));
+		transacaoService.Transferir(transfereId, recebeId, new BigDecimal("500"));
 		
-		assertEquals("Julia", comprovanteDTO.getPagador());
-		assertEquals("Roberto", comprovanteDTO.getReceptor());
-		assertEquals(new BigDecimal("500"), comprovanteDTO.getValorTransferido());
+		var julia = clienteRepository.findById(transfereId).get();
+		var roberto = clienteRepository.findById(recebeId).get();
+		
+		assertEquals(new BigDecimal("500.00"), julia.getValor());
+		assertEquals(new BigDecimal("1500.00"), roberto.getValor());
 	}
 }
