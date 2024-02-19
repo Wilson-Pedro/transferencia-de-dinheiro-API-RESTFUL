@@ -85,7 +85,7 @@ public class ClienteController {
 			@RequestBody ClienteMinDTO clienteMinDTO){
 		Cliente cliente = clienteService.findById(id);
 		BeanUtils.copyProperties(clienteMinDTO, cliente);
-		return ResponseEntity.status(HttpStatus.OK).body(clienteService.save(cliente));
+		return ResponseEntity.status(HttpStatus.OK).body(clienteService.atualizar(cliente));
 	}
 	
 	@DeleteMapping("/{id}")

@@ -7,8 +7,8 @@ import java.time.OffsetDateTime;
 public class ComprovanteDTO implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	private String Pagador;
-	private String Receptor;
+	private String pagador;
+	private String receptor;
 	private BigDecimal valorTransferido;
 	private OffsetDateTime dataTransferencia;
 	
@@ -16,19 +16,19 @@ public class ComprovanteDTO implements Serializable{
 	}
 	
 	public String getPagador() {
-		return Pagador;
+		return pagador;
 	}
 
 	public void setPagador(String pagador) {
-		Pagador = pagador;
+		this.pagador = pagador;
 	}
 
 	public String getReceptor() {
-		return Receptor;
+		return receptor;
 	}
 
 	public void setReceptor(String receptor) {
-		Receptor = receptor;
+		this.receptor = receptor;
 	}
 
 	public BigDecimal getValorTransferido() {
