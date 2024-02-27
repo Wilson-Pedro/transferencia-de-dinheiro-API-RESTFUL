@@ -10,7 +10,7 @@ O projeto é uma API REST em Java para transferência de dinheiro entre contas b
 - JPA / Hibernate
 - Maven
 
-- ## Banco de dados
+## Banco de dados
 - PostgreSQL
 
 Para rodar o projeto localmente faça o download das seguintes ferramentas:
